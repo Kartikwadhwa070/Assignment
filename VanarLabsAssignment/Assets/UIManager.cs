@@ -68,9 +68,7 @@ public class UIManager : MonoBehaviour
         if (letterDisplayText != null)
         {
             letterDisplayText.text = $"Letter: {letter}";
-            letterDisplayText.transform.localScale = Vector3.zero;
-            LeanTween.scale(letterDisplayText.gameObject, Vector3.one, 0.5f)
-                .setEase(LeanTweenType.easeOutBack);
+            StartCoroutine(AnimateLetterDisplay());
         }
     }
 
@@ -108,9 +106,7 @@ public class UIManager : MonoBehaviour
             if (celebrationEffect != null)
                 celebrationEffect.Play();
 
-            completionPanel.transform.localScale = Vector3.zero;
-            LeanTween.scale(completionPanel, Vector3.one, 0.5f)
-                .setEase(LeanTweenType.easeOutBack);
+            StartCoroutine(AnimateCompletionPanel());
         }
 
         ShowMessage("Letter completed! Well done!", 3.0f);
@@ -121,18 +117,19 @@ public class UIManager : MonoBehaviour
         if (gameCompletePanel != null)
         {
             gameCompletePanel.SetActive(true);
-            gameCompletePanel.transform.localScale = Vector3.zero;
-            LeanTween.scale(gameCompletePanel, Vector3.one, 0.5f)
-                .setEase(LeanTweenType.easeOutBack);
+            StartCoroutine(AnimateGameCompletePanel());
         }
     }
 
     void UpdateProgressBar()
     {
-        if (progressSlider != null && gameManager != null && gameManager.GetComponent<LetterTracer>() != null)
+        if (progressSlider != null)
         {
-            LetterTracer tracer = gameManager.GetComponent<LetterTracer>();
-            progressSlider.value = tracer.CompletionPercentage;
+            LetterTracer tracer = FindObjectOfType<LetterTracer>();
+            if (tracer != null)
+            {
+                progressSlider.value = tracer.CompletionPercentage;
+            }
         }
     }
 
@@ -144,18 +141,119 @@ public class UIManager : MonoBehaviour
         }
     }
 
+    private System.Collections.IEnumerator AnimateLetterDisplay()
+    {
+        if (letterDisplayText == null) yield break;
+
+        Vector3 originalScale = letterDisplayText.transform.localScale;
+        letterDisplayText.transform.localScale = Vector3.zero;
+
+        float duration = 0.5f;
+        float elapsed = 0f;
+
+        while (elapsed < duration)
+        {
+            elapsed += Time.deltaTime;
+            float progress = elapsed / duration;
+            progress = 1f - (1f - progress) * (1f - progress);
+            letterDisplayText.transform.localScale = Vector3.Lerp(Vector3.zero, originalScale, progress);
+            yield return null;
+        }
+
+        letterDisplayText.transform.localScale = originalScale;
+    }
+
+    private System.Collections.IEnumerator AnimateCompletionPanel()
+    {
+        if (completionPanel == null) yield break;
+
+        Vector3 originalScale = Vector3.one;
+        completionPanel.transform.localScale = Vector3.zero;
+
+        float duration = 0.5f;
+        float elapsed = 0f;
+
+        while (elapsed < duration)
+        {
+            elapsed += Time.deltaTime;
+            float progress = elapsed / duration;
+            progress = 1f - (1f - progress) * (1f - progress) * (1f - progress);
+            completionPanel.transform.localScale = Vector3.Lerp(Vector3.zero, originalScale, progress);
+            yield return null;
+        }
+
+        completionPanel.transform.localScale = originalScale;
+    }
+
+    private System.Collections.IEnumerator AnimateGameCompletePanel()
+    {
+        if (gameCompletePanel == null) yield break;
+
+        Vector3 originalScale = Vector3.one;
+        gameCompletePanel.transform.localScale = Vector3.zero;
+
+        float duration = 0.6f;
+        float elapsed = 0f;
+
+        while (elapsed < duration)
+        {
+            elapsed += Time.deltaTime;
+            float progress = elapsed / duration;
+
+            if (progress < 0.5f)
+            {
+                progress = 2f * progress * progress;
+            }
+            else
+            {
+                progress = 1f - 2f * (1f - progress) * (1f - progress);
+            }
+
+            gameCompletePanel.transform.localScale = Vector3.Lerp(Vector3.zero, originalScale, progress);
+            yield return null;
+        }
+
+        gameCompletePanel.transform.localScale = originalScale;
+    }
+
     System.Collections.IEnumerator ShowMessageCoroutine(string message, float duration)
     {
+        if (messageText == null) yield break;
+
         messageText.text = message;
         messageText.color = Color.yellow;
-        messageText.transform.localScale = Vector3.zero;
-        LeanTween.scale(messageText.gameObject, Vector3.one, 0.2f);
 
+        Vector3 originalScale = Vector3.one;
+        messageText.transform.localScale = Vector3.zero;
+
+        float animDuration = 0.2f;
+        float elapsed = 0f;
+
+        while (elapsed < animDuration)
+        {
+            elapsed += Time.deltaTime;
+            float progress = elapsed / animDuration;
+            progress = progress * progress;
+            messageText.transform.localScale = Vector3.Lerp(Vector3.zero, originalScale, progress);
+            yield return null;
+        }
+
+        messageText.transform.localScale = originalScale;
         yield return new WaitForSeconds(duration);
 
-        LeanTween.scale(messageText.gameObject, Vector3.zero, 0.2f)
-            .setOnComplete(() => messageText.text = "");
+        elapsed = 0f;
+        while (elapsed < animDuration)
+        {
+            elapsed += Time.deltaTime;
+            float progress = elapsed / animDuration;
+            progress = 1f - (1f - progress) * (1f - progress);
+            messageText.transform.localScale = Vector3.Lerp(originalScale, Vector3.zero, progress);
+            yield return null;
+        }
 
+        messageText.transform.localScale = Vector3.zero;
+        messageText.text = "";
+        messageText.transform.localScale = originalScale;
         messageCoroutine = null;
     }
 }
