@@ -1,109 +1,107 @@
 using UnityEngine;
 using UnityEngine.UI;
-using System.Collections.Generic;
 
 public class LetterTracer : MonoBehaviour
 {
-    public PathPoint[] pathPoints; // Assign in inspector, in order
-    public RectTransform canvasRect;
-    public GameObject lineSegmentPrefab; // 1x1 pixel Image for line
+    [Header("Setup")]
+    public PathPoint[] pathPoints;         // Assign in inspector (in order)
+    public RectTransform canvasRect;       // The Canvas RectTransform
+    public GameObject lineSegmentPrefab;   // Prefab for line drawing
+
+    [Header("Settings")]
+    public float minDistance = 5f;         // Minimum distance before placing segment
+    public float tolerance = 50f;          // Allowed distance from the path line
 
     private int currentIndex = 0;
     private Vector2 lastPoint;
     private bool isDrawing = false;
 
-    public float minDistance = 5f; // Minimum pixel distance for line segment
-
     void Start()
     {
+        // Activate first point
         currentIndex = 0;
+        pathPoints[0].Activate();
 
-        // Activate the first point immediately
-        pathPoints[currentIndex].Activate();  // Turn it green
-        pathPoints[currentIndex].SetTargetHighlight(false); // Remove yellow if needed
-
-        // Highlight the next point (index 1) as the target
         if (pathPoints.Length > 1)
-            pathPoints[1].SetTargetHighlight(true);
+            pathPoints[1].Highlight(true);
     }
-
 
     void Update()
     {
         if (Input.GetMouseButtonDown(0))
         {
-            Vector2 mousePos = Input.mousePosition;
+            Vector2 pos = Input.mousePosition;
 
-            // Start drawing only if touching the current point or the next target
-            if (IsOverPoint(mousePos, currentIndex) ||
-                (currentIndex + 1 < pathPoints.Length && IsOverPoint(mousePos, currentIndex + 1)))
+            // Must start at the current or next point
+            if (IsOverPoint(pos, currentIndex) ||
+                (currentIndex + 1 < pathPoints.Length && IsOverPoint(pos, currentIndex + 1)))
             {
                 isDrawing = true;
-                lastPoint = mousePos;
+                lastPoint = pos;
             }
         }
         else if (Input.GetMouseButtonUp(0))
         {
-            isDrawing = false; // Stop drawing when finger is lifted
+            isDrawing = false;
         }
 
-        if (isDrawing)
+        if (isDrawing && currentIndex + 1 < pathPoints.Length)
         {
-            Vector2 currentPos = Input.mousePosition;
+            Vector2 pos = Input.mousePosition;
 
-            // Only allow drawing towards next point
-            if (currentIndex + 1 < pathPoints.Length)
+            Vector2 start = pathPoints[currentIndex].GetComponent<RectTransform>().position;
+            Vector2 end = pathPoints[currentIndex + 1].GetComponent<RectTransform>().position;
+
+            // Only draw if near the line between current and next point
+            if (IsNearLine(start, end, pos, tolerance))
             {
-                Vector2 start = pathPoints[currentIndex].GetComponent<RectTransform>().position;
-                Vector2 end = pathPoints[currentIndex + 1].GetComponent<RectTransform>().position;
-
-                if (IsNearLine(start, end, currentPos, 50f))
+                if (Vector2.Distance(lastPoint, pos) >= minDistance)
                 {
-                    if (Vector2.Distance(lastPoint, currentPos) >= minDistance)
-                    {
-                        CreateLineSegment(lastPoint, currentPos);
-                        lastPoint = currentPos;
-                    }
+                    CreateLineSegment(lastPoint, pos);
+                    lastPoint = pos;
+                }
 
-                    // Activate next point if reached
-                    if (IsOverPoint(currentPos, currentIndex + 1))
-                    {
-                        pathPoints[currentIndex + 1].Activate();
-                        pathPoints[currentIndex + 1].SetTargetHighlight(false);
-                        currentIndex++;
+                // Reached the next point
+                if (IsOverPoint(pos, currentIndex + 1))
+                {
+                    pathPoints[currentIndex + 1].Activate();
+                    pathPoints[currentIndex + 1].Highlight(false);
+                    currentIndex++;
 
-                        // Highlight the next point if it exists
-                        if (currentIndex + 1 < pathPoints.Length)
-                            pathPoints[currentIndex + 1].SetTargetHighlight(true);
+                    if (currentIndex + 1 < pathPoints.Length)
+                        pathPoints[currentIndex + 1].Highlight(true);
 
-                        lastPoint = pathPoints[currentIndex].GetComponent<RectTransform>().position;
-                    }
+                    // Snap drawing to new point
+                    lastPoint = pathPoints[currentIndex].GetComponent<RectTransform>().position;
                 }
             }
         }
     }
 
-
-
-    bool IsOverPoint(Vector2 pos, int pointIndex)
+    bool IsOverPoint(Vector2 pos, int index)
     {
-        RectTransform rt = pathPoints[pointIndex].GetComponent<RectTransform>();
-        return RectTransformUtility.RectangleContainsScreenPoint(rt, pos);
+        if (index < 0 || index >= pathPoints.Length) return false;
+        RectTransform rt = pathPoints[index].GetComponent<RectTransform>();
+        return RectTransformUtility.RectangleContainsScreenPoint(rt, pos, null);
     }
 
-    bool IsNearLine(Vector2 start, Vector2 end, Vector2 point, float tolerance)
+    bool IsNearLine(Vector2 start, Vector2 end, Vector2 p, float tolerance)
     {
-        float distance = Mathf.Abs((end.y - start.y) * point.x - (end.x - start.x) * point.y + end.x * start.y - end.y * start.x)
-                         / Vector2.Distance(start, end);
+        float segLen = Vector2.Distance(start, end);
+        if (segLen < 0.001f) return false;
+
+        float distance = Mathf.Abs((end.y - start.y) * p.x - (end.x - start.x) * p.y + end.x * start.y - end.y * start.x) / segLen;
         return distance <= tolerance;
     }
 
     void CreateLineSegment(Vector2 start, Vector2 end)
     {
-        GameObject segment = Instantiate(lineSegmentPrefab, canvasRect);
-        RectTransform rt = segment.GetComponent<RectTransform>();
+        GameObject seg = Instantiate(lineSegmentPrefab, canvasRect);
+        RectTransform rt = seg.GetComponent<RectTransform>();
+
         rt.anchorMin = rt.anchorMax = new Vector2(0, 0);
-        rt.sizeDelta = new Vector2(Vector2.Distance(start, end), 5f);
+        rt.pivot = new Vector2(0f, 0.5f);
+        rt.sizeDelta = new Vector2(Vector2.Distance(start, end), 6f);
         rt.position = start;
 
         float angle = Mathf.Atan2(end.y - start.y, end.x - start.x) * Mathf.Rad2Deg;

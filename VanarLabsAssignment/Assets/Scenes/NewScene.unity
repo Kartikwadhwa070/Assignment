@@ -208,7 +208,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 9d31b387c6de714409f4667d42f29f13, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: '::'
+  m_EditorClassIdentifier: Assembly-CSharp::LetterMask
 --- !u!1 &143634445
 GameObject:
   m_ObjectHideFlags: 0
@@ -369,9 +369,9 @@ MonoBehaviour:
   - {fileID: 1953525760}
   canvasRect: {fileID: 143634449}
   lineSegmentPrefab: {fileID: 4257766993994784675, guid: 3b0b2a28cccd830428678225afb7f1b0, type: 3}
-  letterMask: {fileID: 0}
-  pencilMarker: {fileID: 0}
+  zonePrefab: {fileID: 0}
   minDistance: 5
+  zoneThickness: 100
   tolerance: 50
 --- !u!1 &376595006
 GameObject:
@@ -423,7 +423,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: '::'
   canvasRect: {fileID: 143634449}
   lineSegmentPrefab: {fileID: 4257766993994784675, guid: 3b0b2a28cccd830428678225afb7f1b0, type: 3}
+  letterMask: {fileID: 130057596}
   minDistance: 5
+  lineThickness: 6
 --- !u!1 &632103343
 GameObject:
   m_ObjectHideFlags: 0
@@ -585,6 +587,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 538b90b34fc90a84fa54c634d7ab69b8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: '::'
+  index: 0
   isActive: 0
 --- !u!1 &1026466605
 GameObject:
@@ -972,6 +975,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 538b90b34fc90a84fa54c634d7ab69b8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: '::'
+  index: 0
   isActive: 0
 --- !u!1 &1621397148
 GameObject:
@@ -1061,6 +1065,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 538b90b34fc90a84fa54c634d7ab69b8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: '::'
+  index: 0
   isActive: 0
 --- !u!1 &1734063539
 GameObject:
@@ -1150,6 +1155,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 538b90b34fc90a84fa54c634d7ab69b8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: '::'
+  index: 0
   isActive: 0
 --- !u!1 &1953525756
 GameObject:
@@ -1239,6 +1245,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 538b90b34fc90a84fa54c634d7ab69b8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: '::'
+  index: 0
   isActive: 0
 --- !u!1660057539 &9223372036854775807
 SceneRoots:

@@ -20,11 +20,12 @@ public class PathPoint : MonoBehaviour
         image.color = Color.green; // Activated color
     }
 
-    public void Highlight()
+    public void Highlight(bool active)
     {
         if (!isActive)
-            image.color = Color.yellow; // Only for next target
+            image.color = active ? Color.yellow : Color.gray;
     }
+
 
 
     public void ResetPoint()
