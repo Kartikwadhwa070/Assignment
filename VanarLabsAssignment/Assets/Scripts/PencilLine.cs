@@ -7,8 +7,7 @@ public class PencilLine : MonoBehaviour
     private LineRenderer lineRenderer;
     private List<Vector3> points = new List<Vector3>();
 
-    public float minDistance = 0.05f;
-    public PolygonCollider2D letterCollider; // assign in Inspector
+    public float minDistance = 0.05f; // distance threshold between points
 
     void Awake()
     {
@@ -23,18 +22,14 @@ public class PencilLine : MonoBehaviour
         if (isDrawing)
         {
             Vector3 mousePos = Input.mousePosition;
-            mousePos.z = 10f;
+            mousePos.z = 10f; // distance from camera
             Vector3 worldPos = Camera.main.ScreenToWorldPoint(mousePos);
 
-            // ✅ Only allow drawing if inside collider
-            if (letterCollider != null && letterCollider.OverlapPoint(worldPos))
+            if (points.Count == 0 || Vector3.Distance(points[^1], worldPos) > minDistance)
             {
-                if (points.Count == 0 || Vector3.Distance(points[^1], worldPos) > minDistance)
-                {
-                    points.Add(worldPos);
-                    lineRenderer.positionCount = points.Count;
-                    lineRenderer.SetPositions(points.ToArray());
-                }
+                points.Add(worldPos);
+                lineRenderer.positionCount = points.Count;
+                lineRenderer.SetPositions(points.ToArray());
             }
         }
     }

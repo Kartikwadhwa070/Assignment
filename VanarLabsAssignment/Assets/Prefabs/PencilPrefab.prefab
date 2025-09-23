@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 3493250079207812205}
   m_Layer: 5
   m_Name: PencilPrefab
-  m_TagString: Untagged
+  m_TagString: Line
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0

@@ -4,42 +4,37 @@ using UnityEngine.UI;
 public class PencilLineUI : MonoBehaviour
 {
     [Header("Setup")]
-    public RectTransform canvasRect;       // The canvas (assign in inspector)
-    public GameObject lineSegmentPrefab;   // A 1x1 Image prefab used for drawing
-    public LetterMask letterMask;          // The RawImage with LetterMask.cs attached
+    public RectTransform canvasRect;       // Parent canvas for line segments
+    public GameObject lineSegmentPrefab;   // Prefab: 1x1 Image with "LineSegment" tag
+    public LetterMask letterMask;          // Reference to LetterMask
 
     [Header("Settings")]
-    public float minDistance = 5f;         // Minimum distance before adding a new segment
-    public float lineThickness = 6f;       // Thickness of drawn line
+    public float minDistance = 5f;         // Distance threshold before new segment
+    public float lineThickness = 6f;       // Visual thickness of the drawn line
 
     private Vector2 lastPoint;
     private bool isDrawing = false;
 
     void Update()
     {
-        // Mouse Down / Touch Begin
         if (Input.GetMouseButtonDown(0))
         {
             Vector2 pos = Input.mousePosition;
-
             if (letterMask != null && letterMask.IsInsideLetter(pos))
             {
                 isDrawing = true;
                 lastPoint = pos;
             }
         }
-        // Mouse Up / Touch End
         else if (Input.GetMouseButtonUp(0))
         {
             isDrawing = false;
         }
 
-        // Drawing movement
         if (isDrawing && Input.GetMouseButton(0))
         {
             Vector2 currentPos = Input.mousePosition;
 
-            // Only draw if inside the letter mask
             if (letterMask != null && letterMask.IsInsideLetter(currentPos))
             {
                 if (Vector2.Distance(lastPoint, currentPos) >= minDistance)
@@ -65,12 +60,11 @@ public class PencilLineUI : MonoBehaviour
         rt.rotation = Quaternion.Euler(0, 0, angle);
     }
 
-    // Optional: clear all lines
     public void ClearLine()
     {
         foreach (Transform child in canvasRect)
         {
-            if (child.CompareTag("LineSegment")) // tag your prefab as "LineSegment"
+            if (child.CompareTag("LineSegment"))
                 Destroy(child.gameObject);
         }
     }

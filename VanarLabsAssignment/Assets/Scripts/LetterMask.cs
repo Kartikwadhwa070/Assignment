@@ -22,7 +22,7 @@ public class LetterMask : MonoBehaviour
 
         if (!tex.isReadable)
         {
-            Debug.LogError("LetterMask: Texture is not readable! Enable Read/Write in Import Settings.");
+            Debug.LogError("LetterMask: Texture is not readable. Enable Read/Write in Import Settings.");
             return;
         }
 
@@ -38,7 +38,6 @@ public class LetterMask : MonoBehaviour
         if (!RectTransformUtility.ScreenPointToLocalPointInRectangle(rt, screenPos, null, out Vector2 local))
             return false;
 
-        // Convert to normalized coords (0–1)
         float nx = (local.x - rt.rect.xMin) / rt.rect.width;
         float ny = (local.y - rt.rect.yMin) / rt.rect.height;
 
@@ -49,6 +48,6 @@ public class LetterMask : MonoBehaviour
         int py = Mathf.Clamp(Mathf.RoundToInt(ny * texHeight), 0, texHeight - 1);
 
         Color32 c = pixels[py * texWidth + px];
-        return c.a > 10; // only allow if pixel is opaque
+        return c.a > 10; // only draw inside visible parts of the letter
     }
 }

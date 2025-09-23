@@ -18,7 +18,6 @@ public class LetterTracer : MonoBehaviour
     private bool isDrawing = false;
     private bool hasTracedCurrentStroke = false;
 
-    // ✅ Events for UI scripts
     public delegate void ProgressChanged(int current, int total);
     public event ProgressChanged OnProgress;
 
@@ -72,7 +71,6 @@ public class LetterTracer : MonoBehaviour
                     pathPoints[currentIndex + 1].Highlight(false);
                     currentIndex++;
 
-                    // fire progress event
                     OnProgress?.Invoke(currentIndex, pathPoints.Length - 1);
 
                     if (currentIndex == pathPoints.Length - 1)
@@ -90,7 +88,6 @@ public class LetterTracer : MonoBehaviour
             }
             else
             {
-                // 🚨 Out of bounds → reset
                 Debug.Log("Out of bounds! Restarting...");
                 ResetProgress();
             }
@@ -99,10 +96,8 @@ public class LetterTracer : MonoBehaviour
 
     void ResetProgress()
     {
-        // Clear lines
         ClearLines();
 
-        // Reset points
         foreach (var p in pathPoints)
             p.ResetPoint();
 
@@ -115,7 +110,6 @@ public class LetterTracer : MonoBehaviour
         isDrawing = false;
         hasTracedCurrentStroke = false;
 
-        // reset progress event
         OnProgress?.Invoke(currentIndex, pathPoints.Length - 1);
     }
 
